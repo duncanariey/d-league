@@ -69,12 +69,16 @@ def get_game_details(game):
         for prob in summary["winprobability"]:
             probabilities.append(prob["homeWinPercentage"])
         win_prob_range = max(probabilities) - min(probabilities)
+        win_prob_sum_delta = 0
+        for x in range(len(probabilities)-1):
+            win_prob_sum_delta += abs(probabilities[x]-probabilities[x+1])
         games_details.update({
             'Team 1 id': int(team_1_id),
             'Team 1 display name': team1_display_name,
             'Team 2 id': int(team_2_id),
             'Team 2 display name': team2_display_name,
-            'Win probability range': win_prob_range
+            'Win probability range': win_prob_range,
+            'Win probability sum deltas': win_prob_sum_delta,
         })
         print(f"finished organizing game {game}")
         return games_details
@@ -99,22 +103,25 @@ def assign_probabilities_to_divisions(league, games_details):
             team_names = []
             win_percentage = 0
             number_of_teams = 0
+            sum_delta = 0
             for team in division:
                 for game in games_details:
                     if team == game['Team 1 id']:
                         team_names.append(game['Team 1 display name'])
                         win_percentage += game['Win probability range']
                         number_of_teams += 1
+                        sum_delta += game['Win probability sum deltas']
                     if team == game['Team 2 id']:
                         team_names.append(game['Team 2 display name'])
                         win_percentage += game['Win probability range']
                         number_of_teams += 1
+                        sum_delta += game['Win probability sum deltas']
             team_names_string = ""
             if team_names:
                 for team in range(len(team_names)-1):
                     team_names_string += f"the {team_names[team]}, "
                 team_names_string += f"and the {team_names[-1]}"
-                print(f"The division that contains {team_names_string} had an average win probability range of {win_percentage / number_of_teams}")
+                print(f"The division that contains {team_names_string} had an average win probability range of {win_percentage / number_of_teams} and an average win probability sum delta of {sum_delta}")
 
 
 new_week = input("Which week would you like to calculate win probability ranges for? "
